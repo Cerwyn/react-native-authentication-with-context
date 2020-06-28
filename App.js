@@ -1,114 +1,107 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import * as React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Icon} from 'react-native-elements';
+import Signin from './src/screens/Signin';
+import Tab1 from './src/screens/Tab1';
+import Tab2 from './src/screens/Tab2';
+import Tab3 from './src/screens/Tab3';
+import {Provider as AuthProvider} from './src/context/AuthContext.js';
+import {Context as AuthContext} from './src/context/AuthContext';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
-
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const App: () => React$Node = () => {
+const AuthStack = createStackNavigator();
+function authFlow() {
   return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <AuthStack.Navigator>
+      <AuthStack.Screen
+        options={{headerShown: false}}
+        name="Signin"
+        component={Signin}
+      />
+      <AuthStack.Screen
+        options={{headerShown: false}}
+        name="Signup"
+        component={Signin}
+      />
+    </AuthStack.Navigator>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+function homeFlow() {
+  return (
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
+          let iconName;
+
+          switch (route.name) {
+            case 'Tab1':
+              iconName = focused 
+                ? 'ios-checkbox' 
+                : 'ios-checkbox-outline';
+              break;
+            case 'Tab2':
+              iconName = focused 
+              ? 'ios-add-circle' 
+              : 'ios-add-circle-outline';
+              break;
+            case 'Tab3':
+              iconName = focused
+                ? 'ios-information-circle'
+                : 'ios-information-circle-outline';
+              break;
+          }
+
+          // You can return any component that you like here!
+          return (
+            <Icon name={iconName} type="ionicon" size={size} color={color} />
+          );
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: 'tomato',
+        inactiveTintColor: 'gray',
+      }}>
+      <Tab.Screen name="Tab1" component={Tab1} />
+      <Tab.Screen name="Tab2" component={Tab2} />
+      <Tab.Screen name="Tab3" component={Tab3} />
+    </Tab.Navigator>
+  );
+}
+
+const Stack = createStackNavigator();
+function App() {
+  const {state} = React.useContext(AuthContext);
+  console.log(state);
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        {state.token === null ? (
+          <>
+            <Stack.Screen
+              options={{headerShown: false}}
+              name="Auth"
+              component={authFlow}
+            />
+          </>
+        ) : (
+          <Stack.Screen
+            options={{headerShown: false}}
+            name="Home"
+            component={homeFlow}
+          />
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default () => {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
-
-export default App;
